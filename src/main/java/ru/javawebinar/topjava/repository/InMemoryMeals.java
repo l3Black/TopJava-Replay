@@ -10,31 +10,20 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class InMemoryMeals implements CrudMeals {
-    private static final Map<Integer, Meal> repository = new ConcurrentHashMap<>();
+    private final Map<Integer, Meal> repository = new ConcurrentHashMap<>();
 
-    private static AtomicInteger sequence = new AtomicInteger(100000);
-
-    private static InMemoryMeals instance;
+    private final AtomicInteger sequence = new AtomicInteger(100000);
 
     {
         MealsUtil.meals.forEach(this::create);
     }
 
-    //Singleton because when you create a new instance, the repository will go bad
-    private InMemoryMeals() {
-    }
-
-    public static synchronized InMemoryMeals getInstance() {
-        if (instance == null)
-            instance = new InMemoryMeals();
-        return instance;
-    }
-
     @Override
     public void create(Meal meal) {
         if (meal.getId() == null) {
-            meal.setId(sequence.incrementAndGet());
-            repository.put(sequence.get(), meal);
+            int id = sequence.incrementAndGet();
+            meal.setId(id);
+            repository.put(id, meal);
         } else
             update(meal);
     }
@@ -46,10 +35,7 @@ public class InMemoryMeals implements CrudMeals {
 
     @Override
     public void update(Meal meal) {
-        if (repository.containsKey(meal.getId()))
-            repository.put(meal.getId(), meal);
-        else
-            throw new IllegalArgumentException("Meal with non-existent id");
+        repository.putIfAbsent(meal.getId(), meal);
     }
 
     @Override
