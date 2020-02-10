@@ -25,6 +25,10 @@ public class MealsUtil {
 
     public static final int CALORIES_PER_DAY = 2000;
 
+    public static List<MealTo> createAllTos(List<Meal> meals) {
+        return filteredByStreams(meals, LocalTime.MIN, LocalTime.MAX, MealsUtil.CALORIES_PER_DAY);
+    }
+
     public static List<MealTo> filteredByStreams(List<Meal> meals, LocalTime startTime, LocalTime endTime, int caloriesPerDay) {
         Map<LocalDate, Integer> caloriesSumByDate = meals.stream()
                 .collect(Collectors.groupingBy(Meal::getDate, Collectors.summingInt(Meal::getCalories)));

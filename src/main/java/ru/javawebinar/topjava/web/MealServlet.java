@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.CrudMeals;
 import ru.javawebinar.topjava.repository.InMemoryMeals;
+import ru.javawebinar.topjava.util.MealsUtil;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -17,13 +18,17 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 public class MealServlet extends HttpServlet {
     private static final Logger log = getLogger(MealServlet.class);
-    private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
-    private static CrudMeals repository = new InMemoryMeals();
+    private static DateTimeFormatter formatter;
+    private static CrudMeals repository;
+
+    @Override
+    public void init() {
+        formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+        repository = InMemoryMeals.getInstance();
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.setCharacterEncoding("UTF-8");
-
         String action = req.getParameter("action");
         action = action == null ? "" : action;
         switch (action) {
@@ -44,7 +49,7 @@ public class MealServlet extends HttpServlet {
                 break;
             default:
                 log.debug("get all meals");
-                req.setAttribute("meals", repository.getAll());
+                req.setAttribute("meals", MealsUtil.createAllTos(repository.getAll()));
                 req.setAttribute("formatter", formatter);
                 req.getRequestDispatcher("/meals.jsp").forward(req, resp);
         }
@@ -60,10 +65,13 @@ public class MealServlet extends HttpServlet {
         LocalDateTime dateTime = LocalDateTime.parse(req.getParameter("date"), DateTimeFormatter.ISO_DATE_TIME);
         String description = req.getParameter("description");
         int calories = req.getParameter("calories").isEmpty() ? 0 : Integer.parseInt(req.getParameter("calories"));
-        log.debug("edit meal id=" + id + " dateTime=" + dateTime + " description=" + description + " calories=" + calories);
+        log.debug(String.format("edit meal id=%d dateTime=%s description=%s calories=%d", id, dateTime, description, calories));
 
         Meal meal = new Meal(id, dateTime, description, calories);
-        repository.create(meal);
+        if (id == null)
+            repository.create(meal);
+        else
+            repository.update(meal);
         resp.sendRedirect("meals");
     }
 }

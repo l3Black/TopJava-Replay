@@ -1,35 +1,42 @@
 package ru.javawebinar.topjava.repository;
 
 import ru.javawebinar.topjava.model.Meal;
-import ru.javawebinar.topjava.model.MealTo;
 import ru.javawebinar.topjava.util.MealsUtil;
 
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class InMemoryMeals implements CrudMeals {
-    private static final ConcurrentHashMap<Integer, Meal> repository = new ConcurrentHashMap<>();
+    private static final Map<Integer, Meal> repository = new ConcurrentHashMap<>();
 
     private static AtomicInteger sequence = new AtomicInteger(100000);
 
-    static {
-        MealsUtil.meals.forEach(meal -> {
-            meal.setId(sequence.incrementAndGet());
-            repository.put(meal.getId(), meal);
-        });
+    private static InMemoryMeals instance;
+
+    {
+        MealsUtil.meals.forEach(this::create);
+    }
+
+    //Singleton because when you create a new instance, the repository will go bad
+    private InMemoryMeals() {
+    }
+
+    public static synchronized InMemoryMeals getInstance() {
+        if (instance == null)
+            instance = new InMemoryMeals();
+        return instance;
     }
 
     @Override
     public void create(Meal meal) {
-        if (meal.getId() != null)
-            update(meal);
-        else {
+        if (meal.getId() == null) {
             meal.setId(sequence.incrementAndGet());
             repository.put(sequence.get(), meal);
-        }
+        } else
+            update(meal);
     }
 
     @Override
@@ -39,12 +46,15 @@ public class InMemoryMeals implements CrudMeals {
 
     @Override
     public void update(Meal meal) {
-        repository.put(meal.getId(), meal);
+        if (repository.containsKey(meal.getId()))
+            repository.put(meal.getId(), meal);
+        else
+            throw new IllegalArgumentException("Meal with non-existent id");
     }
 
     @Override
-    public List<MealTo> getAll() {
-        return MealsUtil.filteredByStreams(new ArrayList<>(repository.values()), LocalTime.MIN, LocalTime.MAX, MealsUtil.CALORIES_PER_DAY);
+    public List<Meal> getAll() {
+        return new ArrayList<>(repository.values());
     }
 
     @Override
