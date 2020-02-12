@@ -35,7 +35,7 @@ public class InMemoryMeals implements CrudMeals {
 
     @Override
     public void update(Meal meal) {
-        repository.putIfAbsent(meal.getId(), meal);
+        repository.replace(meal.getId(), meal);
     }
 
     @Override
