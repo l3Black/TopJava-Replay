@@ -58,10 +58,10 @@ public class MealRestController {
 
     public List<MealTo> getBetween(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
         log.info("getBetween start date ={} end date={} start time={} end time={}", startDate, endDate, startTime, endTime);
-        Predicate<Meal> predicateDate = meal -> DateTimeUtil.isBetweenInclusive(meal.getDate(),
-                startDate == null ? LocalDate.MIN : startDate, endDate == null ? LocalDate.MAX : endDate);
+        startDate = startDate == null ? LocalDate.MIN : startDate;
+        endDate = endDate == null ? LocalDate.MAX : endDate;
         Predicate<Meal> predicateTime = meal -> DateTimeUtil.isBetweenInclusive(meal.getTime(),
                 startTime == null ? LocalTime.MIN : startTime, endTime == null ? LocalTime.MAX : endTime);
-        return MealsUtil.filteredByStreams(service.getAll(getAuthUserId()), authUserCaloriesPerDay(), predicateDate.and(predicateTime));
+        return MealsUtil.filteredByStreams(service.getBetween(getAuthUserId(), startDate, endDate), authUserCaloriesPerDay(), predicateTime);
     }
 }
