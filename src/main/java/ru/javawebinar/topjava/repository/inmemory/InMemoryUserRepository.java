@@ -19,10 +19,10 @@ import java.util.stream.Collectors;
 public class InMemoryUserRepository implements UserRepository {
     private static final Logger log = LoggerFactory.getLogger(InMemoryUserRepository.class);
     private final Map<Integer, User> repository = new ConcurrentHashMap<>();
-    private final AtomicInteger counter = new AtomicInteger(100000);
+    private final AtomicInteger counter = new AtomicInteger(0);
 
     public InMemoryUserRepository() {
-        UsersUtil.USERS.forEach(user -> repository.put(user.getId(), user));
+        UsersUtil.USERS.forEach(this::save);
     }
 
     @Override

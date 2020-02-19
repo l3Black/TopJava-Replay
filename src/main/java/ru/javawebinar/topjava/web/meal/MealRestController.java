@@ -5,13 +5,12 @@ import org.springframework.stereotype.Controller;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.service.MealService;
 import ru.javawebinar.topjava.to.MealTo;
-import ru.javawebinar.topjava.util.DateTimeUtil;
 import ru.javawebinar.topjava.util.MealsUtil;
+import ru.javawebinar.topjava.web.SecurityUtil;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.function.Predicate;
 
 import static org.slf4j.LoggerFactory.getLogger;
 import static ru.javawebinar.topjava.util.ValidationUtil.assureIdConsistent;
@@ -60,8 +59,8 @@ public class MealRestController {
         log.info("getBetween start date ={} end date={} start time={} end time={}", startDate, endDate, startTime, endTime);
         startDate = startDate == null ? LocalDate.MIN : startDate;
         endDate = endDate == null ? LocalDate.MAX : endDate;
-        Predicate<Meal> predicateTime = meal -> DateTimeUtil.isBetweenInclusive(meal.getTime(),
-                startTime == null ? LocalTime.MIN : startTime, endTime == null ? LocalTime.MAX : endTime);
-        return MealsUtil.filteredByStreams(service.getBetween(getAuthUserId(), startDate, endDate), authUserCaloriesPerDay(), predicateTime);
+        LocalTime startTimeNotNull = startTime == null ? LocalTime.MIN : startTime;
+        LocalTime endTimeNotNull = endTime == null ? LocalTime.MAX : endTime;
+        return MealsUtil.getFilteredTos(service.getBetween(getAuthUserId(), startDate, endDate), SecurityUtil.authUserCaloriesPerDay(), startTimeNotNull, endTimeNotNull);
     }
 }
