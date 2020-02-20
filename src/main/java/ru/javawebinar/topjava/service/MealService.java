@@ -7,7 +7,6 @@ import ru.javawebinar.topjava.repository.MealRepository;
 import java.time.LocalDate;
 import java.util.List;
 
-import static ru.javawebinar.topjava.util.ValidationUtil.checkNotFound;
 import static ru.javawebinar.topjava.util.ValidationUtil.checkNotFoundWithId;
 
 @Service
@@ -32,7 +31,7 @@ public class MealService {
     }
 
     public List<Meal> getAll(int userId) {
-        return checkNotFound(repository.getAll(userId), "user ID");
+        return repository.getAll(userId);
     }
 
     public void update(Meal meal, int userId) {
@@ -40,6 +39,6 @@ public class MealService {
     }
 
     public List<Meal> getBetween(int userId, LocalDate startDate, LocalDate endDate) {
-        return checkNotFound(repository.getBetweenInclusive(userId, startDate, endDate), "user ID");
+        return repository.getBetweenInclusive(userId, startDate, endDate);
     }
 }
