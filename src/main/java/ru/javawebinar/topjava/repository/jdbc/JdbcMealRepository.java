@@ -1,8 +1,8 @@
 package ru.javawebinar.topjava.repository.jdbc;
 
 import org.springframework.dao.support.DataAccessUtils;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -12,18 +12,11 @@ import ru.javawebinar.topjava.repository.MealRepository;
 import ru.javawebinar.topjava.util.DateTimeUtil;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Repository
 public class JdbcMealRepository implements MealRepository {
-    private static final RowMapper<Meal> ROW_MAPPER = (resultSet, i) -> {
-        int id = resultSet.getInt("id");
-        LocalDateTime dateTime = LocalDateTime.parse(resultSet.getString("date_time"), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        String description = resultSet.getString("description");
-        int calories = resultSet.getInt("calories");
-        return new Meal(id, dateTime, description, calories);
-    };
+    private static final BeanPropertyRowMapper<Meal> ROW_MAPPER = BeanPropertyRowMapper.newInstance(Meal.class);
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -75,7 +68,7 @@ public class JdbcMealRepository implements MealRepository {
 
     @Override
     public List<Meal> getBetweenHalfOpen(LocalDateTime startDate, LocalDateTime endDate, int userId) {
-        return jdbcTemplate.query("SELECT * FROM meals WHERE user_id=? AND date_time>=? AND date_time<=?" +
+        return jdbcTemplate.query("SELECT * FROM meals WHERE user_id=? AND date_time>=? AND date_time<?" +
                         "ORDER BY date_time DESC", ROW_MAPPER, userId, DateTimeUtil.getStartInclusive(startDate.toLocalDate()),
                 DateTimeUtil.getEndExclusive(endDate.toLocalDate()));
     }

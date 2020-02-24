@@ -15,10 +15,10 @@ import ru.javawebinar.topjava.util.exception.NotFoundException;
 import java.time.LocalDate;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static ru.javawebinar.topjava.MealTestData.assertMatch;
+import static ru.javawebinar.topjava.MealTestData.getUpdated;
 import static ru.javawebinar.topjava.MealTestData.*;
-import static ru.javawebinar.topjava.UserTestData.ADMIN;
-import static ru.javawebinar.topjava.UserTestData.USER;
+import static ru.javawebinar.topjava.UserTestData.*;
 
 
 @ContextConfiguration({
@@ -38,58 +38,65 @@ public class MealServiceTest {
 
     @Test
     public void get() {
-        Meal actual = service.get(MEAL1.getId(), USER.getId());
-        assertThat(actual).isEqualToComparingFieldByField(MEAL1);
+        Meal actual = service.get(MEAL1.getId(), USER_ID);
+        assertMatch(actual, MEAL1);
     }
 
     @Test
     public void delete() {
-        service.delete(MEAL5.getId(), USER.getId());
-        assertThat(service.getAll(USER.getId())).usingFieldByFieldElementComparator().isEqualTo(getAllForUserWithoutDeleted(MEAL5));
+        service.delete(MEAL5.getId(), USER_ID);
+        List<Meal> actual = service.getAll(USER_ID);
+        List<Meal> expected = getAllForUserWithoutDeleted(MEAL5);
+        assertMatch(actual, expected);
     }
 
     @Test
     public void getBetweenHalfOpen() {
         LocalDate start = LocalDate.of(2020, 1, 31);
         LocalDate end = LocalDate.of(2020, 2, 2);
-        List<Meal> actual = service.getBetweenHalfOpen(start, end, USER.getId());
-        assertThat(actual).usingFieldByFieldElementComparator().isEqualTo(getBetweenHalfOpenForUser(start, end));
+        List<Meal> actual = service.getBetweenHalfOpen(start, end, USER_ID);
+        List<Meal> expected = getBetweenHalfOpenForUser(start, end);
+        assertMatch(actual, expected);
     }
 
     @Test
     public void getAll() {
-        assertThat(service.getAll(USER.getId())).usingFieldByFieldElementComparator().isEqualTo(getAllForUser());
+        List<Meal> actual = service.getAll(USER_ID);
+        List<Meal> expected = getAllForUser();
+        assertMatch(actual, expected);
     }
 
     @Test
     public void update() {
         Meal updated = getUpdated(MEAL1);
         service.update(updated, USER.getId());
-        assertThat(service.get(MEAL1.getId(), USER.getId())).isEqualToComparingFieldByField(updated);
+        Meal actual = service.get(MEAL1.getId(), USER_ID);
+        assertMatch(actual, updated);
     }
 
     @Test
     public void create() {
         Meal newMeal = MealTestData.getNew();
-        Meal created = service.create(newMeal, USER.getId());
+        Meal created = service.create(newMeal, USER_ID);
         Integer newId = created.getId();
         newMeal.setId(newId);
-        assertThat(created).isEqualToComparingFieldByField(newMeal);
-        assertThat(service.get(newId, USER.getId())).isEqualToComparingFieldByField(newMeal);
+        Meal actual = service.get(newId, USER_ID);
+        assertMatch(created, newMeal);
+        assertMatch(actual, newMeal);
     }
 
     @Test(expected = NotFoundException.class)
     public void getNotFound() {
-        service.get(MEAL2.getId(), ADMIN.getId());
+        service.get(MEAL2.getId(), ADMIN_ID);
     }
 
     @Test(expected = NotFoundException.class)
     public void deleteNotFound() {
-        service.delete(MEAL5.getId(), ADMIN.getId());
+        service.delete(MEAL5.getId(), ADMIN_ID);
     }
 
     @Test(expected = NotFoundException.class)
     public void updateNotFound() {
-        service.update(MEAL2, ADMIN.getId());
+        service.update(MEAL2, ADMIN_ID);
     }
 }

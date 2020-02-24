@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static ru.javawebinar.topjava.model.AbstractBaseEntity.START_SEQ;
 
 public class MealTestData {
@@ -45,5 +46,13 @@ public class MealTestData {
 
     public static List<Meal> getBetweenHalfOpenForUser(LocalDate start, LocalDate end) {
         return getAllForUser().stream().filter(meal -> Util.isBetweenHalfOpen(meal.getDate(), start, end)).collect(Collectors.toList());
+    }
+
+    public static void assertMatch(Meal actual, Meal expected) {
+        assertThat(actual).isEqualToComparingFieldByField(expected);
+    }
+
+    public static void assertMatch(Iterable<Meal> actual, Iterable<Meal> expected) {
+        assertThat(actual).usingFieldByFieldElementComparator().isEqualTo(expected);
     }
 }
