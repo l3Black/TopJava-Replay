@@ -56,7 +56,7 @@ public class MealServiceTest {
         }
 
         @Override
-        protected void succeeded(long nanos, Description description) {
+        protected void finished(long nanos, Description description) {
             String logInfo = String.format("%s - %d ms\n", description.getMethodName(), TimeUnit.NANOSECONDS.toMillis(nanos));
             log.info(logInfo);
             sb.append("\t\t").append(logInfo);
