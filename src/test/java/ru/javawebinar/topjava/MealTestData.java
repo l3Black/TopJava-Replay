@@ -25,6 +25,8 @@ public class MealTestData {
 
     public static final List<Meal> MEALS = Arrays.asList(MEAL7, MEAL6, MEAL5, MEAL4, MEAL3, MEAL2, MEAL1);
 
+    public static final TestMatcher<Meal> MEAL_MATCHER = TestMatcher.of("user");
+
     public static Meal getCreated() {
         return new Meal(null, of(2020, Month.JUNE, 1, 18, 0), "Созданный ужин", 300);
     }
@@ -33,5 +35,5 @@ public class MealTestData {
         return new Meal(MEAL1_ID, MEAL1.getDateTime(), "Обновленный завтрак", 200);
     }
 
-    public static TestMatcher<Meal> MEAL_MATCHER = TestMatcher.of("user");
+
 }

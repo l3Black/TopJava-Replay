@@ -6,7 +6,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.ExternalResource;
-import org.junit.rules.TestWatcher;
+import org.junit.rules.Stopwatch;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -21,7 +21,7 @@ import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import static org.slf4j.LoggerFactory.getLogger;
 import static ru.javawebinar.topjava.MealTestData.*;
@@ -36,41 +36,41 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
 public class MealServiceTest {
 
-    private static final Logger log = getLogger(MealServiceTest.class);
-    private static final StringBuilder sb = new StringBuilder();
-
     @Autowired
     private MealService service;
+
     @Autowired
     private MealRepository repository;
 
+    private static class TimeCounter extends Stopwatch {
+        private static final Logger log = getLogger(MealServiceTest.class);
+        private static final StringBuilder sb = new StringBuilder();
+
+        private static void infoAllTests() {
+            log.info("\n" +
+                    "\n" +
+                    "\t\t===============================\n" +
+                    "\t\tresult time for executed tests:\n"
+                    + sb.toString() +
+                    "\t\t===============================\n");
+        }
+
+        @Override
+        protected void succeeded(long nanos, Description description) {
+            String logInfo = String.format("%s - %d ms\n", description.getMethodName(), TimeUnit.NANOSECONDS.toMillis(nanos));
+            log.info(logInfo);
+            sb.append("\t\t").append(logInfo);
+        }
+    }
+
     @Rule
-    public TestWatcher watcher = new TestWatcher() {
-        private Date startTest;
-
-        @Override
-        protected void starting(Description description) {
-            super.starting(description);
-            startTest = new Date();
-        }
-
-        @Override
-        protected void finished(Description description) {
-            super.finished(description);
-            Date endTest = new Date();
-            log.info("result time for {}:{}", description.getMethodName(), (endTest.getTime() - startTest.getTime()));
-            sb.append(String.format("result time for %s:%d\n", description.getMethodName(), (endTest.getTime() - startTest.getTime())));
-        }
-    };
+    public Stopwatch timeCounter = new TimeCounter();
 
     @ClassRule
     public static ExternalResource resource = new ExternalResource() {
         @Override
         protected void after() {
-            super.after();
-            log.info("\n\n=========================\n" +
-                    "result time for executed tests:\n"
-                    + sb.toString() + "\n");
+            TimeCounter.infoAllTests();
         }
     };
 
