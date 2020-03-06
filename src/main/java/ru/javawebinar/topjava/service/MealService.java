@@ -40,11 +40,16 @@ public class MealService {
 
     public void update(Meal meal, int userId) {
         Assert.notNull(meal, "meal must not be null");
+        //noinspection ConstantConditions
         checkNotFoundWithId(repository.save(meal, userId), meal.getId());
     }
 
     public Meal create(Meal meal, int userId) {
         Assert.notNull(meal, "meal must not be null");
         return repository.save(meal, userId);
+    }
+
+    public Meal getWithUser(int id, int userId){
+        return repository.getWithUser(id, userId);
     }
 }
