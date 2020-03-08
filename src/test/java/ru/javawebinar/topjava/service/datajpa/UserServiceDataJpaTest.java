@@ -1,13 +1,13 @@
-package ru.javawebinar.topjava.service.user;
+package ru.javawebinar.topjava.service.datajpa;
 
+import org.assertj.core.api.Assertions;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.test.context.ActiveProfiles;
 import ru.javawebinar.topjava.Profiles;
 import ru.javawebinar.topjava.model.User;
+import ru.javawebinar.topjava.service.AbstractUserServiceTest;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
-
-import java.util.Collections;
 
 import static ru.javawebinar.topjava.MealTestData.*;
 import static ru.javawebinar.topjava.UserTestData.ADMIN_ID;
@@ -30,9 +30,8 @@ public class UserServiceDataJpaTest extends AbstractUserServiceTest {
 
     @Test
     public void getWithEmptyMeals() {
-        USER_WITHOUT_MEALS.setMeals(Collections.emptyList());
         //noinspection ConstantConditions
         User user = service.getWithMeals(USER_WITHOUT_MEALS.getId());
-        MEAL_MATCHER.assertMatch(user.getMeals(), USER_WITHOUT_MEALS.getMeals());
+        Assertions.assertThat(user.getMeals()).isEmpty();
     }
 }
