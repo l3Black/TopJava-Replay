@@ -1,14 +1,12 @@
 package ru.javawebinar.topjava.service;
 
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.Assume;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.CacheManager;
 import org.springframework.dao.DataAccessException;
 import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
-import ru.javawebinar.topjava.repository.JpaUtil;
 import ru.javawebinar.topjava.repository.UserRepository;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
@@ -27,26 +25,14 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     private UserRepository repository;
 
-    @Autowired
-    private CacheManager cacheManager;
-
-    @Autowired
-    protected JpaUtil jpaUtil;
-
-    @Before
-    public void setUp() throws Exception {
-        cacheManager.getCache("users").clear();
-        jpaUtil.clear2ndLevelHibernateCache();
-    }
-
     @Test
     public void create() throws Exception {
-        User newUser = getNew();
+        User newUser = getNewAdmin();
         User created = service.create(newUser);
         Integer newId = created.getId();
         newUser.setId(newId);
-        USER_MATCHER.assertMatch(created, newUser);
-        USER_MATCHER.assertMatch(service.get(newId), newUser);
+        USER_MATCHER_WITH_ROLES.assertMatch(created, newUser);
+        USER_MATCHER_WITH_ROLES.assertMatch(service.get(newId), newUser);
     }
 
     @Test(expected = DataAccessException.class)
@@ -67,7 +53,7 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
     @Test
     public void get() throws Exception {
         User user = service.get(USER_ID);
-        USER_MATCHER.assertMatch(user, USER);
+        USER_MATCHER_WITH_ROLES.assertMatch(user, USER);
     }
 
     @Test(expected = NotFoundException.class)
@@ -78,14 +64,14 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
     @Test
     public void getByEmail() throws Exception {
         User user = service.getByEmail("user@yandex.ru");
-        USER_MATCHER.assertMatch(user, USER);
+        USER_MATCHER_WITH_ROLES.assertMatch(user, USER);
     }
 
     @Test
     public void update() throws Exception {
         User updated = getUpdated();
         service.update(updated);
-        USER_MATCHER.assertMatch(service.get(USER_ID), updated);
+        USER_MATCHER_WITH_ROLES.assertMatch(service.get(USER_ID), updated);
     }
 
     @Test
@@ -96,6 +82,7 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
 
     @Test
     public void createWithException() throws Exception {
+        Assume.assumeFalse(isJDBC());
         validateRootCause(() -> service.create(new User(null, "  ", "mail@yandex.ru", "password", Role.ROLE_USER)), ConstraintViolationException.class);
         validateRootCause(() -> service.create(new User(null, "User", "  ", "password", Role.ROLE_USER)), ConstraintViolationException.class);
         validateRootCause(() -> service.create(new User(null, "User", "mail@yandex.ru", "  ", Role.ROLE_USER)), ConstraintViolationException.class);
