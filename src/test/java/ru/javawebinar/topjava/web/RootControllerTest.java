@@ -3,12 +3,10 @@ package ru.javawebinar.topjava.web;
 import org.assertj.core.matcher.AssertionMatcher;
 import org.junit.jupiter.api.Test;
 import ru.javawebinar.topjava.model.User;
-import ru.javawebinar.topjava.to.MealTo;
 import ru.javawebinar.topjava.util.MealsUtil;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -41,20 +39,6 @@ class RootControllerTest extends AbstractControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name("meals"))
                 .andExpect(forwardedUrl("/WEB-INF/jsp/meals.jsp"))
-                .andExpect(model().attribute("meals", new AssertionMatcher<List<MealTo>>() {
-                    @Override
-                    public void assertion(List<MealTo> actual) throws AssertionError {
-                        assertThat(actual).usingFieldByFieldElementComparator()
-                                .isEqualTo(MealsUtil.getTos(MEALS, SecurityUtil.authUserCaloriesPerDay()));
-                    }
-                }));
-    }
-
-    @Test
-    void resourceTest() throws Exception {
-        perform(get("/resources/css/style.css"))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith("text/css"));
+                .andExpect(model().attribute("meals", MealsUtil.getTos(MEALS, SecurityUtil.authUserCaloriesPerDay())));
     }
 }

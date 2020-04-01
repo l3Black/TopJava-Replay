@@ -12,10 +12,6 @@ import ru.javawebinar.topjava.util.exception.NotFoundException;
 import ru.javawebinar.topjava.web.AbstractControllerTest;
 import ru.javawebinar.topjava.web.json.JsonUtil;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -85,16 +81,8 @@ class MealRestControllerTest extends AbstractControllerTest {
 
     @Test
     void getBetween() throws Exception {
-        LocalDate startDate = LocalDate.of(2020, 1, 30);
-        LocalTime startTime = LocalTime.of(0, 15, 30);
-        LocalDate endDate = LocalDate.of(2020, 1, 30);
-        LocalTime endTime = LocalTime.of(18, 15, 30);
-        perform(get(REST_URL + "filter?" +
-                "startDate=" + startDate.format(DateTimeFormatter.ISO_LOCAL_DATE) +
-                "&startTime=" + startTime.format(DateTimeFormatter.ISO_TIME) +
-                "&endDate=" + endDate.format(DateTimeFormatter.ISO_LOCAL_DATE) +
-                "&endTime=" + endTime.format(DateTimeFormatter.ISO_TIME)
-        ))
+        perform(get(REST_URL + "filter?startDate=2020-01-30&startTime=00:15:30" +
+                "&endDate=2020-01-30&endTime=18:15:30"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -104,6 +92,15 @@ class MealRestControllerTest extends AbstractControllerTest {
     @Test
     void getBetweenNulls() throws Exception {
         perform(get(REST_URL + "filter?startDate=&startTime=&endDate=&endTime="))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(MEAL_TO_MATCHER.contentJson(MealsUtil.getTos(MEALS, authUserCaloriesPerDay())));
+    }
+
+    @Test
+    void getBetweenWithoutParams() throws Exception {
+        perform(get(REST_URL + "filter"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
