@@ -1,23 +1,17 @@
 var context = {
-    ajaxUrl: "ajax/admin/users/",
+    ajaxUrl: "ajax/profile/meals/",
     datatableApi: $("#datatable").DataTable({
         "paging": false,
         "info": true,
         "columns": [
             {
-                "data": "name"
+                "data": "dateTime"
             },
             {
-                "data": "email"
+                "data": "description"
             },
             {
-                "data": "roles"
-            },
-            {
-                "data": "enabled"
-            },
-            {
-                "data": "registered"
+                "data": "calories"
             },
             {
                 "defaultContent": "Edit",
@@ -39,14 +33,4 @@ var context = {
 
 $(function () {
     makeEditable(context);
-    $(".check").change(function () {
-        var isEnabled = this.checked;
-        $.ajax({
-            type: "PUT",
-            url: context.ajaxUrl + $(this).parents("tr").attr("id") + "?isEnable=" + isEnabled
-        }).done(function () {
-            updateTable();
-            successNoty("isEnable: " + isEnabled);
-        })
-    })
 });
