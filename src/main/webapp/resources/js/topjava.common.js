@@ -21,6 +21,10 @@ function updateRow(id) {
     $("#modalTitle").html(i18n["editTitle"]);
     $.get(context.ajaxUrl + id, function (data) {
         $.each(data, function (key, value) {
+            if(key === "dateTime"){
+                var date = new Date(value);
+                value = date.toLocaleDateString() + " " + date.toLocaleTimeString();
+            }
             form.find("input[name='" + key + "']").val(value);
         });
         $('#editRow').modal();

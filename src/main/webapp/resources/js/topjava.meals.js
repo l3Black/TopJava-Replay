@@ -6,20 +6,33 @@ function updateFilteredTable() {
     }).done(updateTableByData);
 }
 
+var ajaxMealsUrl = "ajax/profile/meals/";
+
 function clearFilter() {
     $("#filter")[0].reset();
-    $.get("ajax/profile/meals/", updateTableByData);
+    $.get(ajaxMealsUrl, updateTableByData);
 }
 
 $(function () {
     makeEditable({
-        ajaxUrl: "ajax/profile/meals/",
+        ajaxUrl: ajaxMealsUrl,
         datatableApi: $("#datatable").DataTable({
+            "ajax": {
+                "url": ajaxMealsUrl,
+                "dataSrc": ""
+            },
             "paging": false,
             "info": true,
             "columns": [
                 {
-                    "data": "dateTime"
+                    "data": "dateTime",
+                    "render": function (date, type, row) {
+                        if (type === "display") {
+                            var dateForm = new Date(date);
+                            return dateForm.toLocaleDateString() + " " + dateForm.toLocaleTimeString();
+                        }
+                        return date;
+                    }
                 },
                 {
                     "data": "description"
@@ -28,12 +41,14 @@ $(function () {
                     "data": "calories"
                 },
                 {
-                    "defaultContent": "Edit",
-                    "orderable": false
+                    "orderable": false,
+                    "defaultContent": "",
+                    "render": renderEditBtn
                 },
                 {
+                    "orderable": false,
                     "defaultContent": "Delete",
-                    "orderable": false
+                    "render": renderDeleteBtn
                 }
             ],
             "order": [
@@ -41,8 +56,32 @@ $(function () {
                     0,
                     "desc"
                 ]
-            ]
+            ],
+            "createdRow": function (row, data, dataIndex) {
+                $(row).attr("data-mealExcess", data.excess)
+            }
         }),
         updateTable: updateFilteredTable
     });
 });
+
+var lan = window.navigator ? (window.navigator.language ||
+    window.navigator.systemLanguage ||
+    window.navigator.userLanguage) : "en";
+lan = lan.substr(0, 2).toLowerCase();
+
+jQuery.datetimepicker.setLocale(lan);
+
+$('#startDate, #endDate').datetimepicker({
+    timepicker: false,
+    format: 'Y-m-d'
+});
+
+$('#startTime, #endTime').datetimepicker({
+    datepicker: false,
+    format: 'H:i'
+});
+
+$('#dateTime').datetimepicker({
+    format: 'Y-m-d H:i'
+})
