@@ -1,12 +1,12 @@
+var ajaxMealsUrl = "ajax/profile/meals/";
+
 function updateFilteredTable() {
     $.ajax({
         type: "GET",
-        url: "ajax/profile/meals/filter",
+        url: ajaxMealsUrl + "filter",
         data: $("#filter").serialize()
     }).done(updateTableByData);
 }
-
-var ajaxMealsUrl = "ajax/profile/meals/";
 
 function clearFilter() {
     $("#filter")[0].reset();
@@ -28,8 +28,7 @@ $(function () {
                     "data": "dateTime",
                     "render": function (date, type, row) {
                         if (type === "display") {
-                            var dateForm = new Date(date);
-                            return dateForm.toLocaleDateString() + " " + dateForm.toLocaleTimeString();
+                            return moment(date).format("YYYY-MM-DD HH:mm");
                         }
                         return date;
                     }

@@ -22,8 +22,7 @@ function updateRow(id) {
     $.get(context.ajaxUrl + id, function (data) {
         $.each(data, function (key, value) {
             if(key === "dateTime"){
-                var date = new Date(value);
-                value = date.toLocaleDateString() + " " + date.toLocaleTimeString();
+                value = moment(value).format("YYYY-MM-DD HH:mm")
             }
             form.find("input[name='" + key + "']").val(value);
         });
