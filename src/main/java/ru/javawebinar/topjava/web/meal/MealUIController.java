@@ -14,7 +14,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
-import static ru.javawebinar.topjava.util.Util.errorsToStringForView;
+import static ru.javawebinar.topjava.util.Util.errorsHandlingForView;
 
 @RestController
 @RequestMapping("/ajax/profile/meals")
@@ -42,7 +42,7 @@ public class MealUIController extends AbstractMealController {
     @PostMapping
     public ResponseEntity<String> createOrUpdate(@Valid Meal meal, BindingResult result) {
         if (result.hasErrors()) {
-            return ResponseEntity.unprocessableEntity().body(errorsToStringForView(result));
+            return errorsHandlingForView(result);
         }
         if (meal.isNew()) {
             super.create(meal);

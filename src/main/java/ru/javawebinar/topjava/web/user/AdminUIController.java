@@ -11,7 +11,7 @@ import ru.javawebinar.topjava.to.UserTo;
 import javax.validation.Valid;
 import java.util.List;
 
-import static ru.javawebinar.topjava.util.Util.errorsToStringForView;
+import static ru.javawebinar.topjava.util.Util.errorsHandlingForView;
 
 @RestController
 @RequestMapping("/ajax/admin/users")
@@ -39,7 +39,7 @@ public class AdminUIController extends AbstractUserController {
     @PostMapping
     public ResponseEntity<String> createOrUpdate(@Valid UserTo userTo, BindingResult result) {
         if (result.hasErrors()) {
-            return ResponseEntity.unprocessableEntity().body(errorsToStringForView(result));
+            return errorsHandlingForView(result);
         }
         if (userTo.isNew()) {
             super.create(userTo);

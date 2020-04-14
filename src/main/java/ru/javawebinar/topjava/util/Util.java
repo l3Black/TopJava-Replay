@@ -1,5 +1,6 @@
 package ru.javawebinar.topjava.util;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.validation.BindingResult;
 
@@ -13,12 +14,12 @@ public class Util {
         return (start == null || value.compareTo(start) >= 0) && (end == null || value.compareTo(end) < 0);
     }
 
-    public static String errorsToStringForView(BindingResult result){
+    public static ResponseEntity<String> errorsHandlingForView(BindingResult result){
         StringJoiner joiner = new StringJoiner("<br>");
         result.getFieldErrors().forEach(
                 fe -> joiner.add(String.format("[%s] %s", fe.getField(), fe.getDefaultMessage()))
         );
-        return joiner.toString();
+        return ResponseEntity.unprocessableEntity().body(joiner.toString());
     }
 }
 
