@@ -76,4 +76,14 @@ class ProfileRestControllerTest extends AbstractControllerTest {
 
         USER_MATCHER.assertMatch(userService.get(USER_ID), UserUtil.updateFromTo(new User(USER), updatedTo));
     }
+
+    @Test
+    void registerNoValid() throws Exception{
+        UserTo newTo = new UserTo(null, "", "", "", 2000);
+        perform(MockMvcRequestBuilders.post(REST_URL + "/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.writeValue(newTo)))
+                .andDo(print())
+                .andExpect(status().isUnprocessableEntity());
+    }
 }
